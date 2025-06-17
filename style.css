@@ -1,0 +1,272 @@
+* {
+  --corner-radius: 10px;
+  --padding: 20px;
+  --font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+  --panel-color-background: linear-gradient(rgb(83, 92, 80) 0%, rgb(0, 0, 0) 35%, rgb(0, 0, 0) 65%, rgb(83, 92, 80) 100%);
+  --color-primary-panel: rgba(72, 24, 144, .25);
+  --panel-backdrop-blur: blur(10px);
+}
+
+body {
+  background-color: rgb(32, 32, 32);
+  color: white;
+  font-family: var(--font-family);
+  margin: 0;
+  padding: 0;
+}
+
+.sticky-header {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background-color: rgba(49, 54, 48, 0.95);
+  backdrop-filter: blur(10px);
+  padding: 1rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.header-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  margin: 0;
+}
+
+.votes-remaining {
+  background-color: rgba(145, 70, 255, 0.2);
+  color: #9146FF;
+  padding: 0.25rem 0.75rem;
+  border-radius: 1rem;
+  font-size: 0.875rem;
+  font-weight: bold;
+  border: 1px solid #9146FF;
+}
+
+.login-btn {
+  background-color: #9146FF;
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-weight: bold;
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.2s ease;
+}
+
+.login-btn:hover:not(:disabled) {
+  background-color: #772ce8;
+}
+
+.login-btn:disabled {
+  background-color: #4a5568;
+  cursor: not-allowed;
+}
+
+.logout-btn {
+  background-color: #e53e3e;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  cursor: pointer;
+  border: none;
+  transition: background-color 0.2s ease;
+}
+
+.logout-btn:hover {
+  background-color: #c53030;
+}
+
+.artist-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  padding: 1.5rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.artist-card {
+  background: linear-gradient(135deg, #1f1f23 0%, #2d2d35 100%);
+  padding: 1.5rem;
+  border-radius: 1rem;
+  text-align: center;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.3);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.artist-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+}
+
+.artist-img {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+  border-radius: 0.75rem;
+  transition: opacity 0.2s ease;
+  cursor: pointer;
+}
+
+.artist-img:hover {
+  opacity: 0.8;
+}
+
+.artist-name {
+  margin: 0.75rem 0 0.25rem 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.song-title {
+  margin: 0 0 1rem 0;
+  font-size: 1rem;
+  color: #a0a0a0;
+  font-style: italic;
+}
+
+.artist-audio {
+  margin: 1rem 0;
+  width: 100%;
+  height: 40px;
+}
+
+.vote-section {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.user-votes {
+  color: #9146FF;
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 0.75rem;
+  text-align: center;
+}
+
+.vote-btn {
+  background: linear-gradient(135deg, #9146FF 0%, #772ce8 100%);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: bold;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+  position: relative;
+  overflow: hidden;
+  width: 100%;
+}
+
+.vote-btn:hover:not(:disabled) {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(145, 70, 255, 0.4);
+}
+
+.vote-btn:disabled {
+  background: #4a5568;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+.loading-spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+  border-top-color: transparent;
+  animation: spin 1s ease-in-out infinite;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.error-message {
+  background-color: #fed7d7;
+  color: #742a2a;
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin: 1rem;
+  text-align: center;
+}
+
+.login-prompt {
+  text-align: center;
+  padding: 2rem;
+  color: #a0a0a0;
+}
+
+.login-prompt h2 {
+  margin-bottom: 1rem;
+  color: white;
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-content {
+  background: linear-gradient(135deg, #1f1f23 0%, #2d2d35 100%);
+  padding: 2rem;
+  border-radius: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  text-align: center;
+  min-width: 300px;
+  max-width: 400px;
+}
+
+.modal-content h3 {
+  margin: 0 0 1rem 0;
+  font-size: 1.25rem;
+  color: white;
+}
+
+.modal-content p {
+  margin: 0 0 1.5rem 0;
+  color: #a0a0a0;
+}
+
+.vote-buttons {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.vote-option-btn {
+  background-color: rgba(145, 70, 255, 0.2);
+  color: #9146FF;
+  border: 1px solid #9146FF;
+  padding: 0.5rem;
+}
+
+.tmc-callout {
+  text-align: center;
+  font-size: 12px;
+  display: block;
+  margin: auto;
+  width: 65px;
+}
+
+.tmc-callout a:hover {
+  filter: drop-shadow(0px 0px .7px white);
+}
