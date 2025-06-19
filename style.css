@@ -433,16 +433,14 @@ body {
   transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
 }
 
-/* Hover effect */
 .participating-artist img:hover {
   transform: scale(1.05);
   box-shadow: 0 0 8px white;
   opacity: 0.9;
 }
 
-/* Custom Border Colors for Each Artist */
-.artist-border-1 { border: 3px solid #ceacff; }  /* Pink */
-.artist-border-2 { border: 3px solid #153d00; }  /* Blue */
-.artist-border-3 { border: 3px solid #ad7855; }  /* Green */
-.artist-border-4 { border: 3px solid #f08edf; }  /* Amber */
-.artist-border-5 { border: 3px solid #6684b8; }  /* Purple */
+.artist-border-1 { border: 3px solid #ceacff; } 
+.artist-border-2 { border: 3px solid #153d00; } 
+.artist-border-3 { border: 3px solid #ad7855; } 
+.artist-border-4 { border: 3px solid #f08edf; }
+.artist-border-5 { border: 3px solid #6684b8; } 
