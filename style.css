@@ -7,14 +7,23 @@
   --panel-backdrop-blur: blur(10px);
 }
 
-body {
-  background-color: rgb(32, 32, 32);
-  color: white;
-  font-family: var(--font-family);
+/* Ensure footer stays at bottom */
+html, body {
+  height: 100%;
   margin: 0;
   padding: 0;
 }
 
+body {
+  background-color: rgb(32, 32, 32);
+  color: white;
+  font-family: var(--font-family);
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+/* Header Styles */
 .sticky-header {
   position: sticky;
   top: 0;
@@ -32,6 +41,12 @@ body {
   font-size: 1.2rem;
   font-weight: bold;
   margin: 0;
+}
+
+.header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
 }
 
 .votes-remaining {
@@ -77,6 +92,11 @@ body {
 
 .logout-btn:hover {
   background-color: #c53030;
+}
+
+/* Main content - takes up remaining space */
+#main-content {
+  flex: 1;
 }
 
 .artist-grid {
@@ -257,16 +277,126 @@ body {
   color: #9146FF;
   border: 1px solid #9146FF;
   padding: 0.5rem;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 0.875rem;
+  font-weight: 500;
 }
 
+.vote-option-btn:hover:not(:disabled) {
+  background-color: rgba(145, 70, 255, 0.3);
+  transform: translateY(-1px);
+}
+
+.vote-option-btn:disabled {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #666;
+  border-color: #666;
+  cursor: not-allowed;
+}
+
+.vote-option-btn.selected {
+  background-color: #9146FF;
+  color: white;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(145, 70, 255, 0.4);
+}
+
+.modal-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.modal-btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: bold;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+  font-size: 0.9rem;
+}
+
+.modal-btn-primary {
+  background-color: #9146FF;
+  color: white;
+}
+
+.modal-btn-primary:hover:not(:disabled) {
+  background-color: #772ce8;
+}
+
+.modal-btn-primary:disabled {
+  background-color: #4a5568;
+  cursor: not-allowed;
+}
+
+.modal-btn-secondary {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: white;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.modal-btn-secondary:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Footer - Always at bottom */
 .tmc-callout {
   text-align: center;
   font-size: 12px;
   display: block;
-  margin: auto;
+  margin: 2rem auto 1rem auto;
   width: 65px;
+  padding: 1rem 0;
+  color: #a0a0a0;
+}
+
+.tmc-callout p {
+  margin: 0 0 0.5rem 0;
+}
+
+.tmc-callout img {
+  max-width: 100%;
+  height: auto;
 }
 
 .tmc-callout a:hover {
   filter: drop-shadow(0px 0px .7px white);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .sticky-header {
+    padding: 0.75rem;
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+  
+  .header-title {
+    font-size: 1rem;
+  }
+  
+  .artist-grid {
+    grid-template-columns: 1fr;
+    padding: 1rem;
+  }
+  
+  .modal-content {
+    margin: 1rem;
+    min-width: auto;
+    max-width: calc(100vw - 2rem);
+  }
+  
+  .vote-buttons {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.75rem;
+  }
+  
+  .modal-actions {
+    flex-direction: column;
+  }
 }

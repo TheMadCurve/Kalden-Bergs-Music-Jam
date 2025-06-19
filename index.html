@@ -14,9 +14,15 @@
   <!-- Sticky Header -->
   <header class="sticky-header">
     <h1 class="header-title">Kalden's Music Jam - Vote for Your Favorite Artist</h1>
-        <div id="votes-remaining" class="votes-remaining"></div>
-        <button id="logout-btn" class="logout-btn">Logout</button>
-      </div>
+    
+    <div class="header-actions">
+      <!-- Votes remaining (shown when logged in) -->
+      <div id="votes-remaining" class="votes-remaining" style="display: none;"></div>
+      
+      <!-- Logout button (shown when logged in) -->
+      <button id="logout-btn" class="logout-btn" style="display: none;">Logout</button>
+      
+      <!-- Login Button (shown when logged out) -->
       <button id="login-btn" class="login-btn">Sign in with Twitch</button>
     </div>
   </header>
@@ -56,9 +62,13 @@
   </div>
 
   <script src="script.js"></script>
-  <div id="footer" class="tmc-callout">
+  
+  <!-- Footer - Always at bottom -->
+  <footer id="footer" class="tmc-callout">
     <p>Made by</p>
-    <a href="https://themadcurve.cc" target="_blank" rel="noopener noreferrer"><img src="images\themadcurve_logo.webp" alt="The Mad Curve"></a>
-  </div>
+    <a href="https://themadcurve.cc" target="_blank" rel="noopener noreferrer">
+      <img src="images/themadcurve_logo.webp" alt="The Mad Curve">
+    </a>
+  </footer>
 </body>
 </html>
