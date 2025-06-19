@@ -393,9 +393,11 @@ function renderArtists(artists) {
       card.className = 'artist-card';
 
       // Get song URL from Supabase storage
-      const songURL = supabase.storage
+      const { data: signedUrlData, error } = await supabase.storage
         .from('songs')
-        .getPublicUrl(`${artist.twitch_username}.mp3`).data.publicUrl;
+        .getPublicUrl(`${artist.twitch_username}.mp3`, 3600); // 1 hour valid
+
+      const songURL = signedUrlData?.signedUrl || '';
 
       // Sanitize data for display
       const displayName = utils.sanitizeString(artist.display_name);
