@@ -402,24 +402,24 @@ body {
 }
 
 .participating-artists-section {
-  padding: 2rem 1rem;
-  background-color: #1a202c;
+  padding: 1rem;
+  background-image: linear-gradient(to bottom,#1a202c 20%, #38507a);
   text-align: center;
-  display: flex;
-  justify-content: center; /* Centers horizontally */
 }
 
 .participating-artists-title {
   color: white;
   font-size: 1.5rem;
   font-weight: bold;
-  margin-bottom: 1.5rem;
+  padding-bottom: 8px;
 }
 
 .participating-artists-table {
   margin: 0 auto;
   border-collapse: separate;
   border-spacing: 1rem;
+  display: flex;
+  justify-content: center;
 }
 
 .participating-artist {
@@ -429,21 +429,21 @@ body {
 }
 
 .participating-artist img {
-  width: 32px;
-  height: 32px;
+  width: 100px;
+  height: 100px;
   object-fit: cover;
   border-radius: 50%;
   transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
 }
 
 .participating-artist img:hover {
-  transform: scale(1.05);
+  transform: scale(1.1);
   box-shadow: 0 0 8px white;
   opacity: 0.9;
 }
 
-.artist-border-1 { border: 3px solid #ceacff; } 
-.artist-border-2 { border: 3px solid #153d00; } 
-.artist-border-3 { border: 3px solid #ad7855; } 
-.artist-border-4 { border: 3px solid #f08edf; }
-.artist-border-5 { border: 3px solid #6684b8; } 
+.artist-border-1 { border: 2px solid #ceacff; } 
+.artist-border-2 { border: 2px solid #153d00; } 
+.artist-border-3 { border: 2px solid #ad7855; } 
+.artist-border-4 { border: 2px solid #f08edf; }
+.artist-border-5 { border: 2px solid #6684b8; } 
