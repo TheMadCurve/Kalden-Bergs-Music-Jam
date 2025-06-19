@@ -426,8 +426,8 @@ body {
 }
 
 .participating-artist img {
-  width: 128px;
-  height: 128px;
+  width: 32px;
+  height: 32px;
   object-fit: cover;
   border-radius: 50%;
   transition: transform 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
