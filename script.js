@@ -46,7 +46,7 @@ async function handleLogin() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'twitch',
       options: {
-        redirectTo: window.location.origin
+        redirectTo: 'https://themadcurve.github.io/Kalden-Bergs-Music-Jam/'
       }
     });
 
