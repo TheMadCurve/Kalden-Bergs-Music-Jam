@@ -400,3 +400,52 @@ body {
     flex-direction: column;
   }
 }
+
+#part_artists_head {
+  text-align: center;
+  color: white;
+}
+
+#part_artists_table {
+  text-align: center;
+}
+
+.artists_table_items a:hover {
+  scale: 1.05;
+  filter: drop-shadow(0px, 0px, 1px white);
+}
+
+#artist_1 {
+  width: 32px;
+  border-radius: 120px;
+  border: 2px;
+  border-color: #ceacff;
+}
+
+#artist_2 {
+  width: 32px;
+  border-radius: 120px;
+  border: 2px;
+  border-color: #153d00;
+}
+
+#artist_3 {
+  width: 32px;
+  border-radius: 120px;
+  border: 2px;
+  border-color: #ad7855;
+}
+
+#artist_4 {
+  width: 32px;
+  border-radius: 120px;
+  border: 2px;
+  border-color: #f08edf;
+}
+
+#artist_5 {
+  width: 32px;
+  border-radius: 120px;
+  border: 2px;
+  border-color: #6684b8;
+}
