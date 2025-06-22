@@ -428,11 +428,11 @@ function renderArtists(artists) {
 function createArtistCard(artist) {
   const card = document.createElement('div');
   card.className = 'artist-card';
-  card.dataset.artistId = artist.id || artist.song_id; // Handle both column names
+  card.dataset.artistId = artist.song_id; // Use song_id consistently
   
-  const userVotes = appState.getVotesForSong(artist.id || artist.song_id);
-  const canVote = appState.canVoteForSong(artist.id || artist.song_id);
-  const maxAdditional = appState.getMaxAdditionalVotes(artist.id || artist.song_id);
+  const userVotes = appState.getVotesForSong(artist.song_id);
+  const canVote = appState.canVoteForSong(artist.song_id);
+  const maxAdditional = appState.getMaxAdditionalVotes(artist.song_id);
   
   // Get song URL from Supabase storage
   const songURL = supabase.storage
@@ -483,11 +483,11 @@ function createArtistCard(artist) {
       
       <button 
         class="vote-btn ${!canVote ? 'vote-btn-disabled' : ''}" 
-        onclick="openVoteModal('${artist.id || artist.song_id}', '${displayName.replace(/'/g, "\\'")}')"
+        onclick="openVoteModal('${artist.song_id}', '${displayName.replace(/'/g, "\\'")}')"
         ${!canVote ? 'disabled' : ''}
         aria-label="Vote for ${displayName}"
       >
-        ${getVoteButtonText(artist.id || artist.song_id)}
+        ${getVoteButtonText(artist.song_id)}
       </button>
     </div>
   `;
@@ -588,14 +588,21 @@ async function handleVote() {
     const existingVotes = appState.getVotesForSong(appState.selectedArtist);
     const newTotalVotes = existingVotes + appState.selectedPoints;
     
+    console.log('Submitting vote:', {
+      user_id: appState.user.id,
+      song_id: appState.selectedArtist,
+      existingVotes,
+      newVotes: appState.selectedPoints,
+      newTotal: newTotalVotes
+    });
+    
     let result;
     if (existingVotes > 0) {
       // Update existing vote
       result = await supabase
         .from('votes')
         .update({ 
-          points: newTotalVotes,
-          updated_at: new Date().toISOString()
+          points: newTotalVotes
         })
         .eq('user_id', appState.user.id)
         .eq('song_id', appState.selectedArtist)
@@ -611,6 +618,8 @@ async function handleVote() {
         }])
         .select();
     }
+    
+    console.log('Vote result:', result);
     
     if (result.error) throw result.error;
     
@@ -630,14 +639,25 @@ async function handleVote() {
     toast.success(`Successfully gave ${appState.selectedPoints} ${utils.pluralize(appState.selectedPoints, 'vote')}!`);
     
   } catch (error) {
-    console.error('Vote error:', error);
+    console.error('Vote error details:', error);
     appState.voteQueue.delete(appState.selectedArtist);
     
-    if (error.code === 'PGRST116') {
-      toast.error('You have already voted for this song. Please refresh the page.');
-    } else {
-      toast.error('Failed to submit vote. Please try again.');
+    // More specific error messages
+    let errorMessage = 'Failed to submit vote. Please try again.';
+    
+    if (error.code === '23505') {
+      errorMessage = 'You have already voted for this song. Please refresh the page.';
+    } else if (error.code === '23503') {
+      errorMessage = 'Invalid song selection. Please refresh and try again.';
+    } else if (error.code === '42501') {
+      errorMessage = 'Permission denied. Please sign in again.';
+    } else if (error.message?.includes('JWT')) {
+      errorMessage = 'Your session has expired. Please sign in again.';
+    } else if (error.message?.includes('network')) {
+      errorMessage = 'Network error. Please check your connection.';
     }
+    
+    toast.error(errorMessage);
     
     // Restore button
     elements.modalConfirm.innerHTML = '<span class="button-text">Confirm Vote</span>';
@@ -652,7 +672,7 @@ function updateArtistCard(artistId) {
   const card = document.querySelector(`[data-artist-id="${artistId}"]`);
   if (!card) return;
   
-  const artist = appState.artists.find(a => (a.id || a.song_id) === artistId);
+  const artist = appState.artists.find(a => a.song_id === artistId);
   if (!artist) return;
   
   const newCard = createArtistCard(artist);
