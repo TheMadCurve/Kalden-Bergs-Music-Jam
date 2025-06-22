@@ -621,7 +621,19 @@ async function handleVote() {
     
     console.log('Vote result:', result);
     
-    if (result.error) throw result.error;
+    if (result.error) {
+      console.error('Supabase error:', {
+        message: result.error.message,
+        details: result.error.details,
+        hint: result.error.hint,
+        code: result.error.code
+      });
+      throw result.error;
+    }
+    
+    if (!result.data || result.data.length === 0) {
+      throw new Error('No data returned from vote operation');
+    }
     
     // Update local state
     appState.userVotes.set(appState.selectedArtist, newTotalVotes);
