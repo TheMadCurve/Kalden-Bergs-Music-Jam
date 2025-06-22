@@ -68,22 +68,26 @@ body {
   border-bottom: 1px solid var(--border-color);
   padding: 1rem 1.5rem;
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   flex-wrap: wrap;
   gap: 1rem;
+  position: relative;
 }
 
 .header-title {
   font-size: 1.25rem;
   font-weight: 700;
   letter-spacing: -0.025em;
+  position: absolute;
+  left: 1.5rem;
 }
 
 .header-actions {
   display: flex;
   align-items: center;
   gap: 1rem;
+  justify-content: center;
 }
 
 .user-info {
@@ -646,7 +650,7 @@ body {
 /* Toast Notifications */
 .toast-container {
   position: fixed;
-  top: 1rem;
+  top: 5rem; /* Move below header */
   right: 1rem;
   z-index: 2000;
   pointer-events: none;
