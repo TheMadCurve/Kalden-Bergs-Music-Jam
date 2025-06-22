@@ -101,7 +101,8 @@ const utils = {
 
   // Format numbers with proper pluralization
   pluralize(count, singular, plural = null) {
-    return count === 1 ? singular : (plural || `${singular}s`);
+    if (count === 1) return singular;
+    return plural || `${singular}s`;
   },
 
   // Retry function for network operations
@@ -612,6 +613,7 @@ async function handleVote() {
       result = await supabase
         .from('votes')
         .insert([{
+          id: crypto.randomUUID(), // Generate a UUID for the id field
           user_id: appState.user.id,
           song_id: appState.selectedArtist,
           points: appState.selectedPoints
@@ -641,6 +643,7 @@ async function handleVote() {
     appState.voteQueue.delete(appState.selectedArtist);
     
     // Close modal and update UI
+    const votesGiven = appState.selectedPoints; // Store before closing modal
     closeVoteModal();
     updateVotesDisplay();
     
@@ -648,7 +651,8 @@ async function handleVote() {
     updateArtistCard(appState.selectedArtist);
     
     // Show success message
-    toast.success(`Successfully gave ${appState.selectedPoints} ${utils.pluralize(appState.selectedPoints, 'vote')}!`);
+    const voteText = votesGiven === 1 ? 'vote' : 'votes';
+    toast.success(`Successfully gave ${votesGiven} ${voteText}!`);
     
   } catch (error) {
     console.error('Vote error details:', error);
