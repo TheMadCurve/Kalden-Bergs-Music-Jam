@@ -32,8 +32,9 @@ class AppState {
     const currentVotes = this.userVotes.get(songId) || 0;
     const pendingVotes = this.voteQueue.get(songId) || 0;
     const totalVotesForSong = currentVotes + pendingVotes;
+    const remainingVotesTotal = this.getRemainingVotes();
     
-    return this.getRemainingVotes() > 0 && totalVotesForSong < APP_CONFIG.maxVotesPerSong;
+    return remainingVotesTotal > 0 && totalVotesForSong < APP_CONFIG.maxVotesPerSong;
   }
 
   getVotesForSong(songId) {
@@ -71,8 +72,6 @@ function initializeElements() {
   elements.thankYouModal = document.getElementById('thank-you-modal');
   elements.thankYouClose = document.getElementById('thank-you-close');
   elements.toastContainer = document.getElementById('toast-container');
-  elements.userInfo = document.getElementById('user-info');
-  elements.usernameDisplay = document.getElementById('username-display');
 }
 
 // Utility functions
@@ -262,14 +261,11 @@ async function handleLogout() {
 function updateAuthUI(session) {
   if (session?.user) {
     appState.user = session.user;
-    const username = utils.getTwitchUsername(session.user);
     
     // Update UI elements
     elements.loginBtn.style.display = 'none';
     elements.logoutBtn.style.display = 'block';
     elements.votesRemaining.style.display = 'block';
-    elements.userInfo.style.display = 'block';
-    elements.usernameDisplay.textContent = `@${username}`;
     
     loadUserVotes();
   } else {
@@ -278,7 +274,6 @@ function updateAuthUI(session) {
     elements.loginBtn.style.display = 'block';
     elements.logoutBtn.style.display = 'none';
     elements.votesRemaining.style.display = 'none';
-    elements.userInfo.style.display = 'none';
   }
   
   loadArtists();
@@ -644,11 +639,12 @@ async function handleVote() {
     
     // Close modal and update UI
     const votesGiven = appState.selectedPoints; // Store before closing modal
+    const votedArtistId = appState.selectedArtist; // Store before closing modal
     closeVoteModal();
     updateVotesDisplay();
     
-    // Update the specific artist card
-    updateArtistCard(appState.selectedArtist);
+    // Update ALL artist cards to reflect new vote state
+    renderArtists(appState.artists);
     
     // Show success message
     const voteText = votesGiven === 1 ? 'vote' : 'votes';
