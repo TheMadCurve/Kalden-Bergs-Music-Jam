@@ -30,11 +30,10 @@ class AppState {
 
   canVoteForSong(songId) {
     const currentVotes = this.userVotes.get(songId) || 0;
-    const pendingVotes = this.voteQueue.get(songId) || 0;
-    const totalVotesForSong = currentVotes + pendingVotes;
     const remainingVotesTotal = this.getRemainingVotes();
     
-    return remainingVotesTotal > 0 && totalVotesForSong < APP_CONFIG.maxVotesPerSong;
+    // Can vote if: have votes left AND haven't maxed out this song
+    return remainingVotesTotal > 0 && currentVotes < APP_CONFIG.maxVotesPerSong;
   }
 
   getVotesForSong(songId) {
@@ -479,7 +478,8 @@ function createArtistCard(artist) {
       
       <button 
         class="vote-btn ${!canVote ? 'vote-btn-disabled' : ''}" 
-        onclick="openVoteModal('${artist.song_id}', '${displayName.replace(/'/g, "\\'")}')"
+        data-artist-id="${artist.song_id}"
+        data-artist-name="${displayName.replace(/"/g, '&quot;')}"
         ${!canVote ? 'disabled' : ''}
         aria-label="Vote for ${displayName}"
       >
@@ -487,6 +487,14 @@ function createArtistCard(artist) {
       </button>
     </div>
   `;
+  
+  // Add event listener directly to the button
+  const voteBtn = card.querySelector('.vote-btn');
+  if (voteBtn && canVote) {
+    voteBtn.addEventListener('click', () => {
+      openVoteModal(artist.song_id, artist.display_name);
+    });
+  }
   
   return card;
 }
@@ -637,6 +645,12 @@ async function handleVote() {
     appState.totalVotesUsed += appState.selectedPoints;
     appState.voteQueue.delete(appState.selectedArtist);
     
+    console.log('After vote - state:', {
+      totalVotesUsed: appState.totalVotesUsed,
+      remainingVotes: appState.getRemainingVotes(),
+      userVotes: Array.from(appState.userVotes.entries())
+    });
+    
     // Close modal and update UI
     const votesGiven = appState.selectedPoints; // Store before closing modal
     const votedArtistId = appState.selectedArtist; // Store before closing modal
@@ -704,7 +718,6 @@ function closeThankYouModal() {
 }
 
 // Make functions globally accessible
-window.openVoteModal = openVoteModal;
 window.closeVoteModal = closeVoteModal;
 window.handlers = handlers;
 
