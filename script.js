@@ -198,6 +198,18 @@ function setupEventListeners() {
       if (audio !== e.target) audio.pause();
     });
   }, true);
+
+  // Event delegation for vote buttons
+  elements.mainContent?.addEventListener('click', (e) => {
+    const voteBtn = e.target.closest('.vote-btn');
+    if (voteBtn && !voteBtn.disabled) {
+      const artistId = voteBtn.dataset.artistId;
+      const artistName = voteBtn.dataset.artistName;
+      if (artistId && artistName) {
+        openVoteModal(artistId, artistName);
+      }
+    }
+  });
 }
 
 // Authentication handlers
@@ -311,6 +323,12 @@ async function loadUserVotes() {
 // Update votes display
 function updateVotesDisplay() {
   const remaining = appState.getRemainingVotes();
+  console.log('Updating votes display:', {
+    remaining,
+    totalUsed: appState.totalVotesUsed,
+    userVotes: Array.from(appState.userVotes.entries())
+  });
+  
   elements.votesCount.textContent = remaining;
   elements.votesRemaining.classList.toggle('low-votes', remaining <= 3);
   
@@ -487,14 +505,6 @@ function createArtistCard(artist) {
       </button>
     </div>
   `;
-  
-  // Add event listener directly to the button
-  const voteBtn = card.querySelector('.vote-btn');
-  if (voteBtn && canVote) {
-    voteBtn.addEventListener('click', () => {
-      openVoteModal(artist.song_id, artist.display_name);
-    });
-  }
   
   return card;
 }
