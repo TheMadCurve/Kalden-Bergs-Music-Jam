@@ -24,9 +24,9 @@
   --radius-lg: 0.75rem;
   --radius-xl: 1rem;
   
-  --transition-fast: 150ms ease;
-  --transition-base: 200ms ease;
-  --transition-slow: 300ms ease;
+  --transition-fast: 500ms ease;
+  --transition-base: 600ms ease;
+  --transition-slow: 800ms ease;
 }
 
 /* Reset and Base Styles */
@@ -802,13 +802,12 @@ body {
 .tmc-callout img {
   width: 65px;
   height: auto;
-  opacity: 0.8;
+  opacity: 0.5;
   transition: all var(--transition-base);
 }
 
 .tmc-callout a:hover img {
   opacity: 1;
-  filter: drop-shadow(0 0 5px white);
 }
 
 /* Responsive Design */
