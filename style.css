@@ -897,8 +897,6 @@ body {
 
 /* Dark mode adjustments (already using dark theme by default) */
 @media (prefers-color-scheme: light) {
-  /* Users who prefer light mode will still get dark mode for now */
-  /* You could add light mode variables here if desired */
 }
 
 /* Print styles */
