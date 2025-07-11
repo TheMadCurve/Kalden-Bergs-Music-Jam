@@ -11,17 +11,20 @@
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   
-  <!-- Preconnect for performance -->
+  <!-- Preconnect -->
   <link rel="preconnect" href="https://vfkalemgmhobyuqvzreh.supabase.co">
   <link rel="preconnect" href="https://static-cdn.jtvnw.net">
 </head>
 <body>
   <header class="sticky-header">
     <h1 class="header-title">Kalden's Music Jam</h1>  
-    <div class="header-actions">
+    <div class="header-center">
       <div id="votes-remaining" class="votes-remaining" style="display: none;">
         <span class="votes-count">10</span> votes left
       </div>
+      <div class="refresh-reminder">Please refresh after each vote</div>
+    </div>
+    <div class="header-actions">      
       <button id="logout-btn" class="logout-btn" style="display: none;">Logout</button>
       <button id="login-btn" class="login-btn">
         Sign in with Twitch
