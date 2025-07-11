@@ -16,36 +16,25 @@
   <link rel="preconnect" href="https://static-cdn.jtvnw.net">
 </head>
 <body>
-  <!-- Sticky Header -->
   <header class="sticky-header">
-    <h1 class="header-title">Kalden's Music Jam</h1>
-    
+    <h1 class="header-title">Kalden's Music Jam</h1>  
     <div class="header-actions">
-      <!-- Votes remaining (shown when logged in) -->
       <div id="votes-remaining" class="votes-remaining" style="display: none;">
         <span class="votes-count">10</span> votes left
       </div>
-      
-      <!-- Logout button (shown when logged in) -->
       <button id="logout-btn" class="logout-btn" style="display: none;">Logout</button>
-      
-      <!-- Login Button (shown when logged out) -->
       <button id="login-btn" class="login-btn">
         Sign in with Twitch
       </button>
     </div>
   </header>
-
-  <!-- Main Content -->
   <main id="main-content" class="main-content">
-    <!-- Loading state -->
     <div id="loading-state" class="loading-state">
       <div class="loading-spinner large"></div>
       <p>Loading artists...</p>
     </div>
   </main>
 
-  <!-- Vote Modal -->
   <div id="vote-modal" class="modal-overlay" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="modal-artist-name">
     <div class="modal-content">
       <button class="modal-close" aria-label="Close modal" onclick="closeVoteModal()">×</button>
@@ -68,7 +57,6 @@
     </div>
   </div>
 
-  <!-- Thank You Modal -->
   <div id="thank-you-modal" class="modal-overlay" style="display: none;" role="dialog" aria-modal="true">
     <div class="modal-content thank-you-content">
       <h2>🎉 Thank You for Voting!</h2>
@@ -78,14 +66,14 @@
     </div>
   </div>
 
-  <!-- Toast Container -->
+
   <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>
 
-  <!-- Scripts -->
+
   <script src="config.js"></script>
   <script src="script.js"></script>
 
-  <!-- Participating Artists Section -->
+
   <section class="participating-artists-section">
     <h2 class="participating-artists-title">Participating Artists</h2>
     <div class="artists-carousel">
