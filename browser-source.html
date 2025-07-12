@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kalden's Music Jam - Live Results</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background: transparent;
+      color: #ffffff;
+      overflow: hidden;
+    }
+
+    .container {
+      padding: 20px;
+      background: linear-gradient(135deg, rgba(15, 15, 17, 0.95) 0%, rgba(25, 25, 30, 0.95) 100%);
+      backdrop-filter: blur(10px);
+      border-radius: 16px;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      max-width: 400px;
+      margin: 20px;
+    }
+
+    .header {
+      text-align: center;
+      margin-bottom: 24px;
+      padding-bottom: 16px;
+      border-bottom: 2px solid rgba(145, 70, 255, 0.3);
+    }
+
+    .header h1 {
+      font-size: 24px;
+      font-weight: 700;
+      margin-bottom: 4px;
+      background: linear-gradient(135deg, #9146FF 0%, #c77dff 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .subtitle {
+      font-size: 14px;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .results {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .artist-result {
+      background: rgba(255, 255, 255, 0.05);
+      border-radius: 12px;
+      padding: 12px 16px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      transition: all 0.3s ease;
+    }
+
+    .artist-result:hover {
+      background: rgba(255, 255, 255, 0.08);
+      transform: translateX(4px);
+    }
+
+    .artist-info {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+
+    .artist-name {
+      font-weight: 600;
+      font-size: 16px;
+    }
+
+    .vote-count {
+      font-size: 14px;
+      color: #9146FF;
+      font-weight: 700;
+    }
+
+    .progress-bar {
+      width: 100%;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.1);
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #9146FF 0%, #c77dff 100%);
+      border-radius: 4px;
+      transition: width 0.5s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .progress-fill::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.3) 50%,
+        transparent 100%
+      );
+      animation: shimmer 2s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    .loading {
+      text-align: center;
+      padding: 40px;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 24px;
+      height: 24px;
+      border: 3px solid rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+      border-top-color: #9146FF;
+      animation: spin 1s ease-in-out infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .last-update {
+      text-align: center;
+      margin-top: 16px;
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.4);
+    }
+
+    .no-votes {
+      text-align: center;
+      padding: 40px 20px;
+      color: rgba(255, 255, 255, 0.5);
+      font-style: italic;
+    }
+
+    /* Minimal mode for smaller overlays */
+    .minimal .container {
+      padding: 16px;
+      max-width: 300px;
+    }
+
+    .minimal .header h1 {
+      font-size: 18px;
+    }
+
+    .minimal .subtitle {
+      display: none;
+    }
+
+    .minimal .artist-name {
+      font-size: 14px;
+    }
+
+    .minimal .vote-count {
+      font-size: 12px;
+    }
+
+    .minimal .progress-bar {
+      height: 6px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container" id="container">
+    <div class="header">
+      <h1>Music Jam Voting</h1>
+      <div class="subtitle">Live Results</div>
+    </div>
+    
+    <div id="content" class="loading">
+      <div class="loading-spinner"></div>
+      <p>Loading results...</p>
+    </div>
+  </div>
+
+  <script src="config.js"></script>
+  <script>
+    // Initialize Supabase
+    const supabase = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONFIG.anonKey);
+
+    // Configuration
+    const UPDATE_INTERVAL = 10000; // Update every 10 seconds
+    const ANIMATION_DURATION = 500;
+
+    // State
+    let artistsData = new Map();
+    let maxVotes = 0;
+    let updateTimer = null;
+
+    // Check for minimal mode from URL params
+    const urlParams = new URLSearchParams(window.location.search);
+    const isMinimal = urlParams.get('minimal') === 'true';
+    if (isMinimal) {
+      document.getElementById('container').classList.add('minimal');
+    }
+
+    // Format time ago
+    function formatTimeAgo(date) {
+      const seconds = Math.floor((new Date() - date) / 1000);
+      if (seconds < 60) return 'just now';
+      const minutes = Math.floor(seconds / 60);
+      if (minutes < 60) return `${minutes}m ago`;
+      const hours = Math.floor(minutes / 60);
+      return `${hours}h ago`;
+    }
+
+    // Load voting results
+    async function loadResults() {
+      try {
+        // Get all artists
+        const { data: artists, error: artistsError } = await supabase
+          .from('artists')
+          .select('song_id, display_name, twitch_username')
+          .order('display_name');
+
+        if (artistsError) throw artistsError;
+
+        // Get all votes
+        const { data: votes, error: votesError } = await supabase
+          .from('votes')
+          .select('song_id, points');
+
+        if (votesError) throw votesError;
+
+        // Process results
+        const results = new Map();
+        maxVotes = 0;
+
+        // Initialize artists
+        artists.forEach(artist => {
+          results.set(artist.song_id, {
+            ...artist,
+            totalVotes: 0,
+            voterCount: 0
+          });
+        });
+
+        // Count votes
+        votes.forEach(vote => {
+          const artist = results.get(vote.song_id);
+          if (artist) {
+            artist.totalVotes += vote.points;
+            artist.voterCount += 1;
+            maxVotes = Math.max(maxVotes, artist.totalVotes);
+          }
+        });
+
+        // Sort by votes (highest first)
+        const sortedResults = Array.from(results.values())
+          .sort((a, b) => b.totalVotes - a.totalVotes);
+
+        artistsData = results;
+        renderResults(sortedResults);
+
+      } catch (error) {
+        console.error('Error loading results:', error);
+        document.getElementById('content').innerHTML = `
+          <div class="no-votes">
+            <p>Unable to load results</p>
+          </div>
+        `;
+      }
+    }
+
+    // Render results
+    function renderResults(results) {
+      const hasVotes = results.some(r => r.totalVotes > 0);
+      
+      if (!hasVotes) {
+        document.getElementById('content').innerHTML = `
+          <div class="no-votes">
+            <p>No votes yet</p>
+            <p style="font-size: 12px; margin-top: 8px;">Waiting for the first vote...</p>
+          </div>
+        `;
+        return;
+      }
+
+      const html = `
+        <div class="results">
+          ${results.map(artist => {
+            const percentage = maxVotes > 0 ? (artist.totalVotes / maxVotes) * 100 : 0;
+            return `
+              <div class="artist-result">
+                <div class="artist-info">
+                  <div class="artist-name">${artist.display_name}</div>
+                  <div class="vote-count">${artist.totalVotes} votes</div>
+                </div>
+                <div class="progress-bar">
+                  <div class="progress-fill" style="width: ${percentage}%"></div>
+                </div>
+              </div>
+            `;
+          }).join('')}
+        </div>
+        <div class="last-update">Updates every 10 seconds</div>
+      `;
+
+      document.getElementById('content').innerHTML = html;
+    }
+
+    // Setup real-time subscription
+    function setupRealtimeUpdates() {
+      const channel = supabase
+        .channel('votes-changes')
+        .on('postgres_changes', 
+          { 
+            event: '*', 
+            schema: 'public', 
+            table: 'votes' 
+          }, 
+          (payload) => {
+            console.log('Vote change detected:', payload);
+            // Clear existing timer and set a new one to debounce updates
+            clearTimeout(updateTimer);
+            updateTimer = setTimeout(loadResults, 1000);
+          }
+        )
+        .subscribe();
+    }
+
+    // Initialize
+    async function init() {
+      await loadResults();
+      setupRealtimeUpdates();
+      
+      // Regular updates as fallback
+      setInterval(loadResults, UPDATE_INTERVAL);
+    }
+
+    // Start the app
+    init();
+  </script>
+</body>
+</html>
