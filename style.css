@@ -424,7 +424,7 @@ body {
 
 .how-it-works ul {
   list-style: none;
-  space-y: 0.75rem;
+  padding-bottom: 0.75rem;
 }
 
 .how-it-works li {
