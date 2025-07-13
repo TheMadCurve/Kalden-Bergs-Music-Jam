@@ -973,7 +973,6 @@ body {
 .artist-border-4 { border-color: #fce7f3; }
 .artist-border-5 { border-color: #bfdbfe; }
 
-/* Footer */
 .tmc-callout {
   text-align: center;
   padding: 2rem 1rem;
@@ -983,6 +982,11 @@ body {
   background-color: var(--bg-secondary);
 }
 
+.tmc-signature {
+  display: flex;
+  justify-content: center;
+}
+
 .tmc-callout p {
   margin-bottom: 0.5rem;
 }
@@ -990,13 +994,12 @@ body {
 .tmc-callout img {
   width: 65px;
   height: auto;
-  opacity: 0.6;
+  opacity: 0.5;
   transition: all var(--transition-base);
 }
 
 .tmc-callout a:hover img {
   opacity: 1;
-  filter: drop-shadow(0 0 8px var(--primary-color));
 }
 
 /* Responsive Design */
