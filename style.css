@@ -973,6 +973,10 @@ body {
 .artist-border-4 { border-color: #fce7f3; }
 .artist-border-5 { border-color: #bfdbfe; }
 
+#footer {
+  text-align: center;
+}
+
 .tmc-callout {
   text-align: center;
   padding: 2rem 1rem;
