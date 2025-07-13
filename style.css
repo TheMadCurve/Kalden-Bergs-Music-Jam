@@ -1,3 +1,188 @@
+/* Vote Section Updates */
+.vote-section {
+  padding: 1rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.existing-votes {
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  margin-bottom: 0.75rem;
+}
+
+.vote-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.vote-btn {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 50%;
+  border: 2px solid var(--primary-color);
+  background-color: transparent;
+  color: var(--primary-color);
+  font-size: 1.5rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.vote-btn:hover:not(:disabled) {
+  background-color: var(--primary-color);
+  color: white;
+  transform: scale(1.1);
+}
+
+.vote-btn:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.vote-display {
+  min-width: 3rem;
+  text-align: center;
+  position: relative;
+}
+
+.vote-count {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.vote-count.has-pending {
+  color: var(--primary-color);
+}
+
+.pending-indicator {
+  position: absolute;
+  top: -0.5rem;
+  right: -1rem;
+  font-size: 0.75rem;
+  color: var(--primary-color);
+  font-weight: 600;
+  background-color: var(--bg-card);
+  padding: 0 0.25rem;
+  border-radius: var(--radius-sm);
+}
+
+.max-votes-message {
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  margin-top: 0.5rem;
+  font-style: italic;
+}
+
+/* Submit Section */
+.submit-section {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: var(--bg-secondary);
+  border-top: 2px solid var(--primary-border);
+  padding: 1rem;
+  z-index: 99;
+  animation: slideUp var(--transition-slow) ease-out;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+  }
+  to {
+    transform: translateY(0);
+  }
+}
+
+.submit-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+}
+
+.submit-info {
+  font-size: 1rem;
+  color: var(--text-primary);
+}
+
+.submit-info span {
+  font-weight: 700;
+  color: var(--primary-color);
+}
+
+.submit-votes-btn {
+  padding: 0.75rem 2rem;
+  background-color: var(--primary-color);
+  color: white;
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all var(--transition-base);
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.submit-votes-btn:hover:not(:disabled) {
+  background-color: var(--primary-hover);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-lg);
+}
+
+.submit-votes-btn:disabled {
+  background-color: var(--bg-hover);
+  color: var(--text-muted);
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Adjust main content to account for submit section */
+.main-content.has-submit {
+  padding-bottom: 5rem;
+}
+
+/* Remove old vote button styles */
+.vote-btn-disabled {
+  background-color: var(--bg-hover);
+  color: var(--text-muted);
+  cursor: not-allowed;
+  transform: none;
+}
+
+.votes-given {
+  color: var(--primary-color);
+  font-weight: 600;
+  font-size: 0.9rem;
+  margin-bottom: 0.75rem;
+  text-align: center;
+}
+
+.vote-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.25rem;
+  height: 1.25rem;
+  background-color: var(--primary-color);
+  color: white;
+  border-radius: 50%;
+  font-size: 0.75rem;
+}/* CSS Variables */
 :root {
   --primary-color: #9146FF;
   --primary-hover: #772ce8;
@@ -23,12 +208,12 @@
   --radius-lg: 0.75rem;
   --radius-xl: 1rem;
   
-  --transition-fast: 500ms ease;
-  --transition-base: 600ms ease;
-  --transition-slow: 800ms ease;
+  --transition-fast: 150ms ease;
+  --transition-base: 200ms ease;
+  --transition-slow: 300ms ease;
 }
 
-
+/* Reset and Base Styles */
 * {
   box-sizing: border-box;
   margin: 0;
@@ -51,18 +236,18 @@ body {
   flex-direction: column;
 }
 
-
+/* Focus Styles */
 :focus-visible {
   outline: 2px solid var(--primary-color);
   outline-offset: 2px;
 }
 
-
+/* Header Styles */
 .sticky-header {
   position: sticky;
   top: 0;
   z-index: 100;
-  background-color: rgba(0, 0, 0, 0.12);
+  background-color: var(--bg-secondary);
   backdrop-filter: blur(8px);
   border-bottom: 1px solid var(--border-color);
   padding: 1rem 1.5rem;
@@ -96,7 +281,7 @@ body {
 }
 
 .refresh-reminder {
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   color: var(--text-muted);
   font-style: italic;
 }
@@ -118,6 +303,7 @@ body {
   border-color: rgba(239, 68, 68, 0.3);
 }
 
+/* Button Styles */
 .login-btn, .logout-btn {
   padding: 0.5rem 1rem;
   border-radius: var(--radius-md);
@@ -158,6 +344,7 @@ body {
   flex-shrink: 0;
 }
 
+/* Main Content */
 .main-content {
   flex: 1;
   width: 100%;
@@ -166,6 +353,7 @@ body {
   padding: 2rem 1rem;
 }
 
+/* Loading State */
 .loading-state {
   display: flex;
   flex-direction: column;
@@ -195,6 +383,7 @@ body {
   to { transform: rotate(360deg); }
 }
 
+/* Login Prompt */
 .login-prompt {
   text-align: center;
   padding: 3rem 2rem;
@@ -235,8 +424,7 @@ body {
 
 .how-it-works ul {
   list-style: none;
-  padding-bottom: 0.75rem;
-  padding-top: 0.75rem;
+  space-y: 0.75rem;
 }
 
 .how-it-works li {
@@ -271,6 +459,7 @@ body {
   color: var(--text-muted);
 }
 
+/* Empty State */
 .empty-state, .error-state {
   text-align: center;
   padding: 4rem 2rem;
@@ -306,12 +495,14 @@ body {
   background-color: var(--primary-hover);
 }
 
+/* Artist Grid */
 .artist-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
   gap: 1.5rem;
 }
 
+/* Artist Card */
 .artist-card {
   background-color: var(--bg-card);
   border: 1px solid var(--border-color);
@@ -453,6 +644,7 @@ body {
   transform: none;
 }
 
+/* Modal Styles */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -622,6 +814,7 @@ body {
   color: var(--text-primary);
 }
 
+/* Thank You Modal */
 .thank-you-content {
   text-align: center;
 }
@@ -641,9 +834,10 @@ body {
   color: var(--primary-color);
 }
 
+/* Toast Notifications */
 .toast-container {
   position: fixed;
-  top: 5rem;
+  top: 5rem; /* Move below header */
   right: 1rem;
   z-index: 2000;
   pointer-events: none;
@@ -688,6 +882,7 @@ body {
   color: var(--primary-color);
 }
 
+/* Participating Artists Section */
 .participating-artists-section {
   background: linear-gradient(to bottom, var(--bg-secondary) 0%, var(--bg-primary) 100%);
   padding: 3rem 1rem;
@@ -753,13 +948,11 @@ body {
   transition: all var(--transition-base);
   border-width: 3px;
   border-style: solid;
-  transition: 0.6s;
 }
 
 .participating-artist:hover .artist-avatar {
-  transform: scale(1.08);
-  box-shadow: 0 0 16px currentColor;
-  transition: 0.8s;
+  transform: scale(1.1);
+  box-shadow: 0 0 20px currentColor;
 }
 
 .artist-name {
@@ -773,12 +966,14 @@ body {
   opacity: 1;
 }
 
+/* Artist border colors */
 .artist-border-1 { border-color: #e9d5ff; }
 .artist-border-2 { border-color: #86efac; }
 .artist-border-3 { border-color: #fed7aa; }
 .artist-border-4 { border-color: #fce7f3; }
 .artist-border-5 { border-color: #bfdbfe; }
 
+/* Footer */
 .tmc-callout {
   text-align: center;
   padding: 2rem 1rem;
@@ -788,11 +983,6 @@ body {
   background-color: var(--bg-secondary);
 }
 
-.tmc-signature {
-  display: flex;
-  justify-content: center;
-}
-
 .tmc-callout p {
   margin-bottom: 0.5rem;
 }
@@ -800,14 +990,16 @@ body {
 .tmc-callout img {
   width: 65px;
   height: auto;
-  opacity: 0.5;
+  opacity: 0.6;
   transition: all var(--transition-base);
 }
 
 .tmc-callout a:hover img {
   opacity: 1;
+  filter: drop-shadow(0 0 8px var(--primary-color));
 }
 
+/* Responsive Design */
 @media (max-width: 768px) {
   .sticky-header {
     padding: 0.75rem;
@@ -881,6 +1073,7 @@ body {
   }
 }
 
+/* Accessibility */
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -891,6 +1084,13 @@ body {
   }
 }
 
+/* Dark mode adjustments (already using dark theme by default) */
+@media (prefers-color-scheme: light) {
+  /* Users who prefer light mode will still get dark mode for now */
+  /* You could add light mode variables here if desired */
+}
+
+/* Print styles */
 @media print {
   .sticky-header,
   .vote-btn,

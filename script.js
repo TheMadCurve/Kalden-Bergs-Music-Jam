@@ -5,46 +5,73 @@ const supabase = window.supabase.createClient(SUPABASE_CONFIG.url, SUPABASE_CONF
 class AppState {
   constructor() {
     this.user = null;
-    this.userVotes = new Map(); // songId -> points
+    this.userVotes = new Map(); // songId -> points already in database
+    this.pendingVotes = new Map(); // songId -> points to be submitted
     this.totalVotesUsed = 0;
-    this.selectedArtist = null;
-    this.selectedPoints = 0;
     this.isLoading = false;
     this.artists = [];
-    this.voteQueue = new Map(); // For optimistic updates
   }
 
   reset() {
     this.user = null;
     this.userVotes.clear();
-    this.voteQueue.clear();
+    this.pendingVotes.clear();
     this.totalVotesUsed = 0;
-    this.selectedArtist = null;
-    this.selectedPoints = 0;
     this.artists = [];
   }
 
   getRemainingVotes() {
-    return APP_CONFIG.maxVotesPerUser - this.totalVotesUsed;
-  }
-
-  canVoteForSong(songId) {
-    const currentVotes = this.userVotes.get(songId) || 0;
-    const remainingVotesTotal = this.getRemainingVotes();
-    
-    // Can vote if: have votes left AND haven't maxed out this song
-    return remainingVotesTotal > 0 && currentVotes < APP_CONFIG.maxVotesPerSong;
+    const pendingTotal = Array.from(this.pendingVotes.values()).reduce((sum, votes) => sum + votes, 0);
+    return APP_CONFIG.maxVotesPerUser - this.totalVotesUsed - pendingTotal;
   }
 
   getVotesForSong(songId) {
     return this.userVotes.get(songId) || 0;
   }
 
-  getMaxAdditionalVotes(songId) {
-    const currentVotes = this.getVotesForSong(songId);
-    const remainingForSong = APP_CONFIG.maxVotesPerSong - currentVotes;
-    const remainingTotal = this.getRemainingVotes();
-    return Math.min(remainingForSong, remainingTotal, APP_CONFIG.maxVotes);
+  getPendingVotesForSong(songId) {
+    return this.pendingVotes.get(songId) || 0;
+  }
+
+  getTotalVotesForSong(songId) {
+    return this.getVotesForSong(songId) + this.getPendingVotesForSong(songId);
+  }
+
+  canAddVoteForSong(songId) {
+    const totalForSong = this.getTotalVotesForSong(songId);
+    return this.getRemainingVotes() > 0 && totalForSong < APP_CONFIG.maxVotesPerSong;
+  }
+
+  canRemoveVoteForSong(songId) {
+    return this.getPendingVotesForSong(songId) > 0;
+  }
+
+  addVote(songId) {
+    if (!this.canAddVoteForSong(songId)) return false;
+    
+    const current = this.getPendingVotesForSong(songId);
+    this.pendingVotes.set(songId, current + 1);
+    return true;
+  }
+
+  removeVote(songId) {
+    if (!this.canRemoveVoteForSong(songId)) return false;
+    
+    const current = this.getPendingVotesForSong(songId);
+    if (current <= 1) {
+      this.pendingVotes.delete(songId);
+    } else {
+      this.pendingVotes.set(songId, current - 1);
+    }
+    return true;
+  }
+
+  hasPendingVotes() {
+    return this.pendingVotes.size > 0;
+  }
+
+  getTotalPendingVotes() {
+    return Array.from(this.pendingVotes.values()).reduce((sum, votes) => sum + votes, 0);
   }
 }
 
@@ -62,15 +89,12 @@ function initializeElements() {
   elements.votesCount = document.querySelector('.votes-count');
   elements.mainContent = document.getElementById('main-content');
   elements.loadingState = document.getElementById('loading-state');
-  elements.voteModal = document.getElementById('vote-modal');
-  elements.modalArtistName = document.getElementById('modal-artist-name');
-  elements.modalVoteInfo = document.getElementById('modal-vote-info');
-  elements.modalCancel = document.getElementById('modal-cancel');
-  elements.modalConfirm = document.getElementById('modal-confirm');
-  elements.voteOptionBtns = document.querySelectorAll('.vote-option-btn');
   elements.thankYouModal = document.getElementById('thank-you-modal');
   elements.thankYouClose = document.getElementById('thank-you-close');
   elements.toastContainer = document.getElementById('toast-container');
+  elements.submitSection = document.getElementById('submit-section');
+  elements.submitVotesBtn = document.getElementById('submit-votes-btn');
+  elements.pendingVotesCount = document.getElementById('pending-votes-count');
 }
 
 // Utility functions
@@ -151,11 +175,127 @@ const toast = {
   info(message) { this.show(message, 'info'); }
 };
 
+// Handle adding a vote
+function handleAddVote(artistId) {
+  if (appState.addVote(artistId)) {
+    updateArtistCard(artistId);
+    updateVotesDisplay();
+    updateSubmitSection();
+  }
+}
+
+// Handle removing a vote  
+function handleRemoveVote(artistId) {
+  if (appState.removeVote(artistId)) {
+    updateArtistCard(artistId);
+    updateVotesDisplay();
+    updateSubmitSection();
+  }
+}
+
+// Update submit section visibility and info
+function updateSubmitSection() {
+  const hasPending = appState.hasPendingVotes();
+  const pendingCount = appState.getTotalPendingVotes();
+  
+  if (hasPending) {
+    elements.submitSection.style.display = 'block';
+    elements.pendingVotesCount.textContent = pendingCount;
+    elements.submitVotesBtn.disabled = appState.isLoading;
+  } else {
+    elements.submitSection.style.display = 'none';
+  }
+}
+
+// Submit all pending votes
+async function submitAllVotes() {
+  if (!appState.hasPendingVotes() || appState.isLoading) return;
+  
+  try {
+    appState.isLoading = true;
+    elements.submitVotesBtn.disabled = true;
+    elements.submitVotesBtn.innerHTML = '<span class="loading-spinner"></span> Submitting...';
+    
+    const votesToSubmit = Array.from(appState.pendingVotes.entries());
+    const errors = [];
+    let successCount = 0;
+    
+    // Submit each vote
+    for (const [songId, points] of votesToSubmit) {
+      try {
+        const existingVotes = appState.getVotesForSong(songId);
+        const newTotalVotes = existingVotes + points;
+        
+        let result;
+        if (existingVotes > 0) {
+          // Update existing vote
+          result = await supabase
+            .from('votes')
+            .update({ points: newTotalVotes })
+            .eq('user_id', appState.user.id)
+            .eq('song_id', songId)
+            .select();
+        } else {
+          // Insert new vote
+          result = await supabase
+            .from('votes')
+            .insert([{
+              id: crypto.randomUUID(),
+              user_id: appState.user.id,
+              song_id: songId,
+              points: points
+            }])
+            .select();
+        }
+        
+        if (result.error) throw result.error;
+        
+        // Update local state
+        appState.userVotes.set(songId, newTotalVotes);
+        appState.totalVotesUsed += points;
+        successCount++;
+        
+      } catch (error) {
+        console.error(`Error submitting vote for ${songId}:`, error);
+        errors.push({ songId, error });
+      }
+    }
+    
+    // Clear pending votes
+    appState.pendingVotes.clear();
+    
+    // Update UI
+    updateVotesDisplay();
+    updateSubmitSection();
+    renderArtists(appState.artists);
+    
+    // Show result
+    if (errors.length === 0) {
+      toast.success(`Successfully submitted ${successCount} ${utils.pluralize(successCount, 'vote')}!`);
+    } else {
+      toast.error(`Failed to submit ${errors.length} ${utils.pluralize(errors.length, 'vote')}. Please try again.`);
+    }
+    
+    // Check if all votes used
+    if (appState.getRemainingVotes() === 0) {
+      setTimeout(showThankYouModal, 500);
+    }
+    
+  } catch (error) {
+    console.error('Submit error:', error);
+    toast.error('Failed to submit votes. Please try again.');
+  } finally {
+    appState.isLoading = false;
+    elements.submitVotesBtn.disabled = false;
+    elements.submitVotesBtn.innerHTML = 'Submit All Votes';
+  }
+}
+
 // Event handlers
 const handlers = {
   login: utils.debounce(handleLogin, 1000),
   logout: utils.debounce(handleLogout, 1000),
-  vote: utils.debounce(handleVote, 500)
+  submitVotes: utils.debounce(submitAllVotes, 500)
 };
 
 // Setup all event listeners
@@ -164,29 +304,20 @@ function setupEventListeners() {
   elements.loginBtn?.addEventListener('click', handlers.login);
   elements.logoutBtn?.addEventListener('click', handlers.logout);
 
-  // Modal controls
-  elements.modalCancel?.addEventListener('click', closeVoteModal);
-  elements.modalConfirm?.addEventListener('click', handlers.vote);
+  // Submit votes button
+  elements.submitVotesBtn?.addEventListener('click', handlers.submitVotes);
+
+  // Thank you modal
   elements.thankYouClose?.addEventListener('click', closeThankYouModal);
 
-  // Vote option buttons
-  elements.voteOptionBtns?.forEach(btn => {
-    btn.addEventListener('click', () => selectVoteOption(parseInt(btn.dataset.points)));
-  });
-
   // Modal backdrop clicks
-  [elements.voteModal, elements.thankYouModal].forEach(modal => {
-    modal?.addEventListener('click', (e) => {
-      if (e.target === modal) {
-        modal === elements.voteModal ? closeVoteModal() : closeThankYouModal();
-      }
-    });
+  elements.thankYouModal?.addEventListener('click', (e) => {
+    if (e.target === elements.thankYouModal) closeThankYouModal();
   });
 
   // Keyboard navigation
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape') {
-      if (elements.voteModal?.style.display === 'flex') closeVoteModal();
       if (elements.thankYouModal?.style.display === 'flex') closeThankYouModal();
     }
   });
@@ -201,13 +332,15 @@ function setupEventListeners() {
 
   // Event delegation for vote buttons
   elements.mainContent?.addEventListener('click', (e) => {
-    const voteBtn = e.target.closest('.vote-btn');
-    if (voteBtn && !voteBtn.disabled) {
-      const artistId = voteBtn.dataset.artistId;
-      const artistName = voteBtn.dataset.artistName;
-      if (artistId && artistName) {
-        openVoteModal(artistId, artistName);
-      }
+    const plusBtn = e.target.closest('.vote-btn-plus');
+    const minusBtn = e.target.closest('.vote-btn-minus');
+    
+    if (plusBtn && !plusBtn.disabled) {
+      const artistId = plusBtn.dataset.artistId;
+      handleAddVote(artistId);
+    } else if (minusBtn && !minusBtn.disabled) {
+      const artistId = minusBtn.dataset.artistId;
+      handleRemoveVote(artistId);
     }
   });
 }
@@ -238,6 +371,9 @@ async function handleLogin() {
     appState.isLoading = false;
     elements.loginBtn.disabled = false;
     elements.loginBtn.innerHTML = `
+      <svg class="twitch-icon" viewBox="0 0 24 24" width="20" height="20">
+        <path fill="currentColor" d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/>
+      </svg>
       Sign in with Twitch
     `;
   }
@@ -323,13 +459,21 @@ function updateVotesDisplay() {
   console.log('Updating votes display:', {
     remaining,
     totalUsed: appState.totalVotesUsed,
-    userVotes: Array.from(appState.userVotes.entries())
+    userVotes: Array.from(appState.userVotes.entries()),
+    pendingVotes: Array.from(appState.pendingVotes.entries())
   });
   
   elements.votesCount.textContent = remaining;
   elements.votesRemaining.classList.toggle('low-votes', remaining <= 3);
   
-  if (remaining === 0 && !elements.thankYouModal.style.display === 'flex') {
+  // Add class to main content when submit section is visible
+  if (appState.hasPendingVotes()) {
+    elements.mainContent.classList.add('has-submit');
+  } else {
+    elements.mainContent.classList.remove('has-submit');
+  }
+  
+  if (remaining === 0 && !appState.hasPendingVotes()) {
     setTimeout(showThankYouModal, 500);
   }
 }
@@ -438,11 +582,13 @@ function renderArtists(artists) {
 function createArtistCard(artist) {
   const card = document.createElement('div');
   card.className = 'artist-card';
-  card.dataset.artistId = artist.song_id; // Use song_id consistently
+  card.dataset.artistId = artist.song_id;
   
-  const userVotes = appState.getVotesForSong(artist.song_id);
-  const canVote = appState.canVoteForSong(artist.song_id);
-  const maxAdditional = appState.getMaxAdditionalVotes(artist.song_id);
+  const existingVotes = appState.getVotesForSong(artist.song_id);
+  const pendingVotes = appState.getPendingVotesForSong(artist.song_id);
+  const totalVotes = existingVotes + pendingVotes;
+  const canAdd = appState.canAddVoteForSong(artist.song_id);
+  const canRemove = appState.canRemoveVoteForSong(artist.song_id);
   
   // Get song URL from Supabase storage
   const songURL = supabase.storage
@@ -484,22 +630,41 @@ function createArtistCard(artist) {
     </div>
     
     <div class="vote-section">
-      ${userVotes > 0 ? `
-        <div class="votes-given">
-          <span class="vote-icon">✓</span>
-          You gave ${userVotes} ${utils.pluralize(userVotes, 'vote')}
+      ${existingVotes > 0 ? `
+        <div class="existing-votes">
+          Previously gave ${existingVotes} ${utils.pluralize(existingVotes, 'vote')}
         </div>
       ` : ''}
       
-      <button 
-        class="vote-btn ${!canVote ? 'vote-btn-disabled' : ''}" 
-        data-artist-id="${artist.song_id}"
-        data-artist-name="${displayName.replace(/"/g, '&quot;')}"
-        ${!canVote ? 'disabled' : ''}
-        aria-label="Vote for ${displayName}"
-      >
-        ${getVoteButtonText(artist.song_id)}
-      </button>
+      <div class="vote-controls">
+        <button 
+          class="vote-btn vote-btn-minus" 
+          data-artist-id="${artist.song_id}"
+          ${!canRemove ? 'disabled' : ''}
+          aria-label="Remove vote from ${displayName}"
+        >
+          −
+        </button>
+        
+        <div class="vote-display">
+          <span class="vote-count ${pendingVotes > 0 ? 'has-pending' : ''}">${totalVotes}</span>
+          ${pendingVotes > 0 ? `<span class="pending-indicator">+${pendingVotes}</span>` : ''}
+        </div>
+        
+        <button 
+          class="vote-btn vote-btn-plus" 
+          data-artist-id="${artist.song_id}"
+          ${!canAdd ? 'disabled' : ''}
+          aria-label="Add vote to ${displayName}"
+        >
+          +
+        </button>
+      </div>
+      
+      ${totalVotes >= APP_CONFIG.maxVotesPerSong ? 
+        '<div class="max-votes-message">Max votes reached</div>' : 
+        ''
+      }
     </div>
   `;
   

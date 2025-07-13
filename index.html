@@ -11,55 +11,59 @@
   <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
   
-  <!-- Preconnect -->
+  <!-- Preconnect for performance -->
   <link rel="preconnect" href="https://vfkalemgmhobyuqvzreh.supabase.co">
   <link rel="preconnect" href="https://static-cdn.jtvnw.net">
 </head>
 <body>
+  <!-- Sticky Header -->
   <header class="sticky-header">
-    <h1 class="header-title">Kalden's Music Jam</h1>  
+    <h1 class="header-title">Kalden's Music Jam</h1>
+    
+    <!-- Votes remaining (centered) -->
     <div class="header-center">
       <div id="votes-remaining" class="votes-remaining" style="display: none;">
         <span class="votes-count">10</span> votes left
       </div>
-      <div class="refresh-reminder">Please refresh after each vote</div>
     </div>
-    <div class="header-actions">      
+    
+    <!-- Auth buttons (right) -->
+    <div class="header-actions">
+      <!-- Logout button (shown when logged in) -->
       <button id="logout-btn" class="logout-btn" style="display: none;">Logout</button>
+      
+      <!-- Login Button (shown when logged out) -->
       <button id="login-btn" class="login-btn">
+        <svg class="twitch-icon" viewBox="0 0 24 24" width="20" height="20">
+          <path fill="currentColor" d="M11.571 4.714h1.715v5.143H11.57zm4.715 0H18v5.143h-1.714zM6 0L1.714 4.286v15.428h5.143V24l4.286-4.286h3.428L22.286 12V0zm14.571 11.143l-3.428 3.428h-3.429l-3 3v-3H6.857V1.714h13.714Z"/>
+        </svg>
         Sign in with Twitch
       </button>
     </div>
   </header>
+
+  <!-- Main Content -->
   <main id="main-content" class="main-content">
+    <!-- Loading state -->
     <div id="loading-state" class="loading-state">
       <div class="loading-spinner large"></div>
       <p>Loading artists...</p>
     </div>
   </main>
 
-  <div id="vote-modal" class="modal-overlay" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="modal-artist-name">
-    <div class="modal-content">
-      <button class="modal-close" aria-label="Close modal" onclick="closeVoteModal()">×</button>
-      <h3 id="modal-artist-name"></h3>
-      <p class="modal-subtitle">How many votes would you like to give?</p>
-      <p id="modal-vote-info" class="modal-vote-info"></p>
-      <div class="vote-buttons" role="group" aria-label="Vote options">
-        <button class="vote-option-btn" data-points="1" aria-label="Give 1 vote">1 Vote</button>
-        <button class="vote-option-btn" data-points="2" aria-label="Give 2 votes">2 Votes</button>
-        <button class="vote-option-btn" data-points="3" aria-label="Give 3 votes">3 Votes</button>
-        <button class="vote-option-btn" data-points="4" aria-label="Give 4 votes">4 Votes</button>
-        <button class="vote-option-btn" data-points="5" aria-label="Give 5 votes">5 Votes</button>
+  <!-- Submit Section (fixed at bottom when votes are pending) -->
+  <div id="submit-section" class="submit-section" style="display: none;">
+    <div class="submit-container">
+      <div class="submit-info">
+        <span id="pending-votes-count">0</span> pending votes
       </div>
-      <div class="modal-actions">
-        <button id="modal-cancel" class="modal-btn modal-btn-secondary">Cancel</button>
-        <button id="modal-confirm" class="modal-btn modal-btn-primary" disabled>
-          <span class="button-text">Confirm Vote</span>
-        </button>
-      </div>
+      <button id="submit-votes-btn" class="submit-votes-btn">
+        Submit All Votes
+      </button>
     </div>
   </div>
 
+  <!-- Thank You Modal -->
   <div id="thank-you-modal" class="modal-overlay" style="display: none;" role="dialog" aria-modal="true">
     <div class="modal-content thank-you-content">
       <h2>🎉 Thank You for Voting!</h2>
@@ -69,14 +73,14 @@
     </div>
   </div>
 
-
+  <!-- Toast Container -->
   <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>
 
-
+  <!-- Scripts -->
   <script src="config.js"></script>
   <script src="script.js"></script>
 
-
+  <!-- Participating Artists Section -->
   <section class="participating-artists-section">
     <h2 class="participating-artists-title">Participating Artists</h2>
     <div class="artists-carousel">
@@ -125,18 +129,10 @@
   </section>
 
   <footer id="footer" class="tmc-callout">
-    <table class="tmc-signature">
-      <tr class="p">
-        <td>Made by</td>
-      </tr>
-      <tr class="tmc-img">
-        <td>
-          <a href="https://themadcurve.cc" target="_blank" rel="noopener noreferrer">
-            <img src="images/themadcurve_logo.webp" alt="The Mad Curve" width="65" height="65" loading="lazy">
-          </a>
-        </td>
-      </tr>
-    </table>
+    <p>Made by</p>
+    <a href="https://themadcurve.cc" target="_blank" rel="noopener noreferrer">
+      <img src="images/themadcurve_logo.webp" alt="The Mad Curve" width="65" height="65" loading="lazy">
+    </a>
   </footer>
 </body>
 </html>
