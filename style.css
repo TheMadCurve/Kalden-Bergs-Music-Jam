@@ -208,9 +208,9 @@
   --radius-lg: 0.75rem;
   --radius-xl: 1rem;
   
-  --transition-fast: 150ms ease;
-  --transition-base: 200ms ease;
-  --transition-slow: 300ms ease;
+  --transition-fast: 450ms ease;
+  --transition-base: 600ms ease;
+  --transition-slow: 800ms ease;
 }
 
 /* Reset and Base Styles */
