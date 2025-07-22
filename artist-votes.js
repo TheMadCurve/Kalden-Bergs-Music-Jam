@@ -12,7 +12,7 @@
 // ARTIST CONFIGURATION - EDIT THIS SECTION
 // ============================================
 
-const ARTIST_KEY = 'PLACE YOUR SONG ID HERE'; // Replace with your song_id (UUID)
+const ARTIST_KEY = 'bdafd171-e880-4df7-8cb8-fe3d94867a80'; // Replace with your song_id (UUID)
 
 // Optional: Set display mode ('normal', 'minimal', or 'ultra-minimal')
 const DISPLAY_MODE = 'normal';
