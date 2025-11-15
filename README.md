@@ -1,5 +1,5 @@
-# This is Kalden Berg's Music Jam Repository
-**Kalden Berg's Music Jam** is a music artist event. This event will invite Twitch music artists to produce music and for the community to vote on their favorite song.
+# This is Kalden's SONGJAM Repository
+**Kalden's SONG** is a music artist event. This event will invite Twitch music artists to produce music and for the community to vote on their favorite song.
 
 This repository creates a space where people can see participating artists, their songs, then vote after they log in with their Twitch account.
 
