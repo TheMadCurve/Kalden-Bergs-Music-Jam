@@ -518,8 +518,8 @@ function showLoginPrompt() {
   elements.mainContent.innerHTML = `
     <div class="login-prompt">
       <div class="login-prompt-icon">🎵</div>
-      <h2>Welcome to Kalden's Music Jam!</h2>
-      <p>Sign in with your Twitch account to vote for your favorite artists</p>
+      <h2>Welcome to Kalden's SONGJAM!</h2>
+      <p>Sign in with your Twitch account to vote for your favorites</p>
       
       <div class="how-it-works">
         <h3>How Voting Works:</h3>
