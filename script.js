@@ -357,7 +357,7 @@ async function handleLogin() {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'twitch',
       options: {
-        redirectTo: SUPABASE_CONFIG.redirectUrl,
+        redirectTo: window.location.origin + window.location.pathname,
         scopes: 'user:read:email'
       }
     });
